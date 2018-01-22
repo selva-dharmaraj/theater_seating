@@ -1,0 +1,8 @@
+Smith 2
+Jones 5
+Davis 6
+Wilson 100
+Johnson 3
+Williams 4
+Brown 8
+Miller 12
