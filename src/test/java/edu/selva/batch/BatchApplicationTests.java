@@ -10,11 +10,16 @@ import java.io.File;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BatchApplicationTests {
-
+  private static String OS = System.getProperty("os.name").toLowerCase();
+  public static boolean isWindows() {
+    return (OS.indexOf("win") >= 0);
+  }
   static {
-    System.setProperty("layoutFile", "file://" + new File("theater_layout.txt").getAbsolutePath());
+    String filePrefix = "file://";
+    if(isWindows()) filePrefix = "file:///";
+    System.setProperty("layoutFile", filePrefix + new File("theater_layout.txt").getAbsolutePath());
     System.setProperty(
-        "requestFile", "file://" + new File("theater_seating_request.txt").getAbsolutePath());
+        "requestFile", filePrefix + new File("theater_seating_request.txt").getAbsolutePath());
   }
 
   @Test

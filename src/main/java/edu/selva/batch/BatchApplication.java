@@ -18,13 +18,17 @@ import java.io.File;
 @SpringBootApplication
 @EnableBatchProcessing
 public class BatchApplication {
-
+  private static String OS = System.getProperty("os.name").toLowerCase();
   public static void main(String[] args) throws Exception {
 
     if (args.length > 1) {
+      String filePrefix = "file://";
+      if (isWindows()) {
+        filePrefix = "file:///";
+      }
       try {
-        System.setProperty("layoutFile", "file://" + new File(args[0]).getAbsolutePath());
-        System.setProperty("requestFile", "file://" + new File(args[1]).getAbsolutePath());
+        System.setProperty("layoutFile", filePrefix + new File(args[0]).getAbsolutePath());
+        System.setProperty("requestFile", filePrefix + new File(args[1]).getAbsolutePath());
       } catch (NumberFormatException e) {
         System.err.println("Error in parsing arguments. Please verify your input files location.");
         System.err.println();
@@ -32,7 +36,7 @@ public class BatchApplication {
             "Argument Error:"
                 + "\n Usage: java -jar <jar_file> <layout_file> <request_file>"
                 + "\n Example: java -jar target/theater.seating-0.0.1-SNAPSHOT.jar /Users/selva/theater_layout.txt /Users/selva/theater_seating_request.txt"
-                + "\n Example: java -jar target/theater.seating-0.0.1-SNAPSHOT.jar theater_layout.txt theater_seating_request.txt");
+                + "\n java -jar target\\theater.seating-0.0.1-SNAPSHOT.jar C:\\apps\\theater_layout.txt C:\\apps\\theater_seating_request.txt");
 
         System.exit(1);
       }
@@ -41,10 +45,13 @@ public class BatchApplication {
           "Argument Error:"
               + "\n Usage: java -jar <jar_file> <layout_file> <request_file>"
               + "\n Example: java -jar target/theater.seating-0.0.1-SNAPSHOT.jar /Users/selva/theater_layout.txt /Users/selva/theater_seating_request.txt"
-              + "\n Example: java -jar target/theater.seating-0.0.1-SNAPSHOT.jar theater_layout.txt theater_seating_request.txt");
+              + "\n Example: java -jar target\\theater.seating-0.0.1-SNAPSHOT.jar C:\\apps\\theater_layout.txt C:\\apps\\theater_seating_request.txt");
       System.exit(1);
     }
     // Run Spring batch job
     SpringApplication.run(BatchApplication.class, args);
+  }
+  public static boolean isWindows() {
+    return (OS.indexOf("win") >= 0);
   }
 }
