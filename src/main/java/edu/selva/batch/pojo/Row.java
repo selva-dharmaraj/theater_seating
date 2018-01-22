@@ -5,6 +5,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+/**
+ * Row domain object.
+ *
+ * @author Selva Dharmaraj
+ * @since 2018-01-22
+ */
 
 @Component
 public class Row {

@@ -1,11 +1,5 @@
 package edu.selva.batch.tasklet;
 
-import edu.selva.batch.pojo.MailInRequest;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import edu.selva.batch.pojo.TheaterLayout;
 import edu.selva.batch.util.TicketRequestHandler;
 import org.slf4j.Logger;
@@ -16,6 +10,18 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
+/**
+ * This Tasklet responsible for Seat arrangement based on threater layout and mail in requests
+ * received. This Tasklet perform: 1. Capture curring layout. 2. Capture current mail in requests.
+ * 3. Display the summary of current seat arrangement status summary. 4. Seat arrangement. 5.
+ * Display the output.
+ *
+ * @author Selva Dharmaraj
+ * @since 2018-01-22
+ *
+ * @see edu.selva.batch.pojo.TheaterLayout
+ * @see edu.selva.batch.util.TicketRequestHandler
+ */
 @Component
 public class SeatingArrangementTask implements Tasklet {
   private static final Logger LOGGER = LoggerFactory.getLogger(SeatingArrangementTask.class);
@@ -36,10 +42,10 @@ public class SeatingArrangementTask implements Tasklet {
     theaterLayout.displayTheaterLayout();
 
     /*
-      1. Identify the requests should split
-      2. Identify the requests can be accepted
-      3. Identify eligible requests should run through system.
-    */
+    1. Initialize requests.
+    2. Identify and remove can't handle and split requests from the evaluation.
+    3. Display the current request summary
+     */
     mailInRequests.init(theaterLayout);
     System.out.println("\n\nMail in ticket request summary\n");
     mailInRequests.displayTicketRequestSummary(theaterLayout);
@@ -48,7 +54,7 @@ public class SeatingArrangementTask implements Tasklet {
      1. Start filling seats from the first row using max customer combination without leaving the empty space in the section.
      2. If you could not able to fill any section without leaving an empty space in the section then, move on to next section.
      3. After the entire process is over reiterate until the same step for remaining available seats until no request can be taken.
-     4. At this stage, all remaining requests should be split.
+     4. At this stage of calculation, all remaining requests should be split.
      5. Find the groups who can fit by split based on the entire availability.
      6. Send notification to those group members an option to split and accommodate.
      7. Remaining requests should be added to cannot handle request.

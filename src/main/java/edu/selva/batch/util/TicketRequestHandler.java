@@ -11,6 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This is Utility class holds all mail in requests. There are various function exposed to complete
+ * seat arrangement as well display purpose.
+ *
+ * @author Selva Dharmaraj
+ * @since 2018-01-22
+ *
+ * @see edu.selva.batch.pojo.MailInRequest
+ * @see edu.selva.batch.pojo.TheaterLayout
+ * @see edu.selva.batch.util.CustomerRequestFinder
+ */
 public class TicketRequestHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketRequestHandler.class);
   private List<MailInRequest> mailInRequests;
@@ -23,6 +34,39 @@ public class TicketRequestHandler {
     if (this.mailInRequests == null) {
       this.mailInRequests = new ArrayList<>();
     }
+  }
+
+  /**
+   * This is primary method which makes identifies the 'can't handle' and 'call us to split'
+   * requests. Such requests are marked appropriately.
+   *
+   * @param theaterLayout Theater Layout loaded from input file.
+   * @return Nothing.
+   */
+  public void init(TheaterLayout theaterLayout) {
+    int theaterCapacity = theaterLayout.getTotalSeats();
+    int seatsInLargestSection = theaterLayout.getTotalSeatsInLargestSection();
+
+    mailInRequests
+        .stream()
+        .filter(mailInRequest -> mailInRequest.getTicketsCount() > theaterCapacity)
+        .forEach(
+            mailInRequest -> {
+              mailInRequest.setCanNotHandle(true);
+              mailInRequest.setActionTaken(true);
+              mailInRequest.setRequestStatus("Sorry, we can't handle your party.");
+            });
+
+    mailInRequests
+        .stream()
+        .filter(mailInRequest -> !mailInRequest.isCanNotHandle())
+        .filter(mailInRequest -> mailInRequest.getTicketsCount() > seatsInLargestSection)
+        .forEach(
+            mailInRequest -> {
+              mailInRequest.setRequireSplit(true);
+              mailInRequest.setActionTaken(true);
+              mailInRequest.setRequestStatus("Call to split party.");
+            });
   }
 
   public List<MailInRequest> getMailInRequests() {
@@ -105,6 +149,16 @@ public class TicketRequestHandler {
     return ticketsList;
   }
 
+  /**
+   * This is critical method which find eligible mail in requests for the given Section. This
+   * methods try to fit the given section with one or more customer request. The goal of the filling
+   * process is not to lave empty space in given section. Once the algorithm finds the eligible
+   * customer request then it will perform status update and remove it from rest of the calculation.
+   *
+   * @param row given row in the theater.
+   * @param section given section in the theater.
+   * @return boolean - if the section is filled completely returns true or return false.
+   */
   public boolean fillEligibleCustomersInSection(Row row, Section section) {
 
     List<Integer> eligibleCustomerRequests =
@@ -146,34 +200,12 @@ public class TicketRequestHandler {
                 LOGGER.info(String.format(mailInRequest.ticketRequestResultToString())));
   }
 
-  public void init(int theaterCapacity, int seatsInLargestSection) {}
-
-  public void init(TheaterLayout theaterLayout) {
-    int theaterCapacity = theaterLayout.getTotalSeats();
-    int seatsInLargestSection = theaterLayout.getTotalSeatsInLargestSection();
-
-    mailInRequests
-        .stream()
-        .filter(mailInRequest -> mailInRequest.getTicketsCount() > theaterCapacity)
-        .forEach(
-            mailInRequest -> {
-              mailInRequest.setCanNotHandle(true);
-              mailInRequest.setActionTaken(true);
-              mailInRequest.setRequestStatus("Sorry, we can't handle your party.");
-            });
-
-    mailInRequests
-        .stream()
-        .filter(mailInRequest -> !mailInRequest.isCanNotHandle())
-        .filter(mailInRequest -> mailInRequest.getTicketsCount() > seatsInLargestSection)
-        .forEach(
-            mailInRequest -> {
-              mailInRequest.setRequireSplit(true);
-              mailInRequest.setActionTaken(true);
-              mailInRequest.setRequestStatus("Call to split party.");
-            });
-  }
-
+  /**
+   * This method prints the summary of mail request status at any given time.
+   *
+   * @param theaterLayout Theater Layout snapshot.
+   * @return Nothing.
+   */
   public void displayTicketRequestSummary(TheaterLayout theaterLayout) {
     LOGGER.info("Theater seat capacity: " + theaterLayout.getTotalSeats() + " seat(s)");
     LOGGER.info(

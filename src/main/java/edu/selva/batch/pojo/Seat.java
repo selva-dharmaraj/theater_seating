@@ -1,6 +1,12 @@
 package edu.selva.batch.pojo;
 
 import org.springframework.stereotype.Component;
+/**
+ * Seat domain object.
+ *
+ * @author Selva Dharmaraj
+ * @since 2018-01-22
+ */
 
 @Component
 public class Seat {

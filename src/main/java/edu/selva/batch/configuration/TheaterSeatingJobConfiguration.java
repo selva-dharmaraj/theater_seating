@@ -28,6 +28,15 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.validation.BindException;
 
+/**
+ * This is Spring batch job. This class perform below stpes: 1. Read theater layout file and load
+ * the data in memory as domain objects. 2. Read mail in request file and load the data in memory as
+ * domain objects. 3. Call seat arrangement process Wrap up job run.
+ *
+ * @author Selva Dharmaraj
+ * @since 2018-01-22
+ * @see edu.selva.batch.tasklet.SeatingArrangementTask
+ */
 @Configuration
 public class TheaterSeatingJobConfiguration {
   private static final Logger LOGGER =

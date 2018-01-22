@@ -3,7 +3,12 @@ package edu.selva.batch.pojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
+/**
+ * MailInRequest domain object.
+ *
+ * @author Selva Dharmaraj
+ * @since 2018-01-22
+ */
 @Component
 public class MailInRequest {
   private static final Logger LOGGER = LoggerFactory.getLogger(MailInRequest.class);

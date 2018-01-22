@@ -7,10 +7,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.listener.JobExecutionListenerSupport;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+/**
+ * This listener class triggered when the given job completes.
+ *
+ * @author Selva Dharmaraj
+ * @since 2018-01-22
+ */
 @Component
 public class JobCompletionNotificationListener extends JobExecutionListenerSupport {
 

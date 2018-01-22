@@ -6,6 +6,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 
+/**
+ * This is SprintBootApplication class. This application takes two inputs as String argument. This
+ * Class initialize require context and starts up <b>theaterSeatingJob</b> batch job for loading
+ * input file data in to memory and seat arrangement task.
+ *
+ * @author Selva Dharmaraj
+ * @since   2018-01-22
+ * @see edu.selva.batch.configuration.TheaterSeatingJobConfiguration
+ */
 @SpringBootApplication
 @EnableBatchProcessing
 public class BatchApplication {
@@ -35,7 +44,7 @@ public class BatchApplication {
               + "\n Example: java -jar target/theater.seating-0.0.1-SNAPSHOT.jar theater_layout.txt theater_seating_request.txt");
       System.exit(1);
     }
-
+    // Run Spring batch job
     SpringApplication.run(BatchApplication.class, args);
   }
 }

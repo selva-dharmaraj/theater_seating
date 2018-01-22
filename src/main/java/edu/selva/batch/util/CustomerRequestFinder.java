@@ -6,34 +6,52 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * This is Utility class helps to identify the max customer request which can be fit in the given
+ * section.
+ *
+ * @author Selva Dharmaraj
+ * @since 2018-01-22
+ * @see edu.selva.batch.util.TicketRequestHandler
+ */
 public class CustomerRequestFinder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CustomerRequestFinder.class);
 
-  public static List<Integer> findEligibleCustomerRequests(List<Integer> array, int sum) {
+  /**
+   * This utility method has algorithm to identify the maximum customer requests which can be fit in
+   * the given section. This method finds all possible sub set combination matching the sum
+   * (section) and returns the sub set contain maximum customers.
+   *
+   * @param requests available requests for the given section.
+   * @param sectionCount count of given section
+   * @return Nothing.
+   */
+  public static List<Integer> findEligibleCustomerRequests(
+      List<Integer> requests, int sectionCount) {
     Set<List> combinationOfRequest = new HashSet<>();
 
-    if (array == null || array.isEmpty()) {
+    if (requests == null || requests.isEmpty()) {
       LOGGER.info(
           String.format(
               "trying to fill section {%s} with available request(s) {%s} and found matched {%s}",
-              sum, array, array));
+              sectionCount, requests, requests));
       return null;
     }
 
-    if (array.size() == 1 && array.get(0) == sum) {
+    if (requests.size() == 1 && requests.get(0) == sectionCount) {
       LOGGER.info(
           String.format(
               "trying to fill section {%s} with available request(s) {%s} and found matched {%s}",
-              sum, array, array));
-      return array;
+              sectionCount, requests, requests));
+      return requests;
     }
 
     Stack<Integer> stack = new Stack<>();
     stack.push(0);
     while (true) {
       int i = stack.peek();
-      if (i == array.size() - 1) {
+      if (i == requests.size() - 1) {
         stack.pop();
         if (stack.isEmpty()) {
           break;
@@ -42,30 +60,31 @@ public class CustomerRequestFinder {
         stack.push(last + 1);
       } else {
         if (i == 0
-            && stack.stream().map(e -> array.get(e)).mapToInt(Integer::intValue).sum() == sum) {
+            && stack.stream().map(e -> requests.get(e)).mapToInt(Integer::intValue).sum()
+                == sectionCount) {
           List<Integer> fitInRequest =
-              stack.stream().mapToInt(e -> array.get(e)).boxed().collect(Collectors.toList());
+              stack.stream().mapToInt(e -> requests.get(e)).boxed().collect(Collectors.toList());
           LOGGER.debug("Special scenario...");
           LOGGER.debug("List: :" + fitInRequest);
           combinationOfRequest.add(fitInRequest);
         }
         stack.push(i + 1);
       }
-      if (stack.stream().map(e -> array.get(e)).mapToInt(Integer::intValue).sum() == sum) {
+      if (stack.stream().map(e -> requests.get(e)).mapToInt(Integer::intValue).sum()
+          == sectionCount) {
         List<Integer> fitInRequest =
-            stack.stream().mapToInt(e -> array.get(e)).boxed().collect(Collectors.toList());
+            stack.stream().mapToInt(e -> requests.get(e)).boxed().collect(Collectors.toList());
         LOGGER.debug("List: :" + fitInRequest);
         combinationOfRequest.add(fitInRequest);
       }
     }
 
-    // combinationOfRequest.stream().forEach(System.out::println);
     Optional<List> max = combinationOfRequest.stream().max(Comparator.comparing(List::size));
     List uniqueCombinationRequest = max.isPresent() ? max.get() : null;
     LOGGER.info(
         String.format(
             "trying to fill section {%s} with available request(s) {%s} and found matched {%s}",
-            sum, array, uniqueCombinationRequest));
+            sectionCount, requests, uniqueCombinationRequest));
     return uniqueCombinationRequest;
   }
 }

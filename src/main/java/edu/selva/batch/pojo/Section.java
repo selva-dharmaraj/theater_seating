@@ -5,7 +5,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+/**
+ * Section domain object.
+ *
+ * @author Selva Dharmaraj
+ * @since 2018-01-22
+ */
 @Component
 public class Section {
 

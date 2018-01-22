@@ -9,6 +9,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Theaterlayout domain object.
+ *
+ * @author Selva Dharmaraj
+ * @since 2018-01-22
+ */
 @Component
 public class TheaterLayout {
 
