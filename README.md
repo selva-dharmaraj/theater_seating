@@ -9,10 +9,13 @@ Build tool: Maven
 How to run the program:
 
 1. Download the jar file. (theater.seating-0.0.1-SNAPSHOT.jar)
+
 https://github.com/selva-dharmaraj/theater_seating/blob/master/theater.seating-0.0.1-SNAPSHOT.jar
 
 2. Download input files. (theater_layout.txt, theater_seating_request.txt)
+
 https://github.com/selva-dharmaraj/theater_seating/blob/master/theater_layout.txt
+
 https://github.com/selva-dharmaraj/theater_seating/blob/master/theater_seating_request.txt
 
 3. Keep both files is same directory.
