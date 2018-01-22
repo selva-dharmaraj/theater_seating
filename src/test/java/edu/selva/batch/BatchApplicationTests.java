@@ -11,12 +11,10 @@ import java.io.File;
 @SpringBootTest
 public class BatchApplicationTests {
   private static String OS = System.getProperty("os.name").toLowerCase();
-  public static boolean isWindows() {
-    return (OS.indexOf("win") >= 0);
-  }
+
   static {
     String filePrefix = "file://";
-    if(isWindows()) filePrefix = "file:///";
+    if (OS.indexOf("win") >= 0) filePrefix = "file:///";
     System.setProperty("layoutFile", filePrefix + new File("theater_layout.txt").getAbsolutePath());
     System.setProperty(
         "requestFile", filePrefix + new File("theater_seating_request.txt").getAbsolutePath());

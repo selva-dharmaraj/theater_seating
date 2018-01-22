@@ -12,13 +12,14 @@ import java.io.File;
  * input file data in to memory and seat arrangement task.
  *
  * @author Selva Dharmaraj
- * @since   2018-01-22
+ * @since 2018-01-22
  * @see edu.selva.batch.configuration.TheaterSeatingJobConfiguration
  */
 @SpringBootApplication
 @EnableBatchProcessing
 public class BatchApplication {
   private static String OS = System.getProperty("os.name").toLowerCase();
+
   public static void main(String[] args) throws Exception {
 
     if (args.length > 1) {
@@ -31,27 +32,26 @@ public class BatchApplication {
         System.setProperty("requestFile", filePrefix + new File(args[1]).getAbsolutePath());
       } catch (NumberFormatException e) {
         System.err.println("Error in parsing arguments. Please verify your input files location.");
-        System.err.println();
-        System.err.println(
-            "Argument Error:"
-                + "\n Usage: java -jar <jar_file> <layout_file> <request_file>"
-                + "\n Example: java -jar target/theater.seating-0.0.1-SNAPSHOT.jar /Users/selva/theater_layout.txt /Users/selva/theater_seating_request.txt"
-                + "\n java -jar target\\theater.seating-0.0.1-SNAPSHOT.jar C:\\apps\\theater_layout.txt C:\\apps\\theater_seating_request.txt");
-
+        printUsageFomat();
         System.exit(1);
       }
     } else {
-      System.err.println(
-          "Argument Error:"
-              + "\n Usage: java -jar <jar_file> <layout_file> <request_file>"
-              + "\n Example: java -jar target/theater.seating-0.0.1-SNAPSHOT.jar /Users/selva/theater_layout.txt /Users/selva/theater_seating_request.txt"
-              + "\n Example: java -jar target\\theater.seating-0.0.1-SNAPSHOT.jar C:\\apps\\theater_layout.txt C:\\apps\\theater_seating_request.txt");
+      printUsageFomat();
       System.exit(1);
     }
     // Run Spring batch job
     SpringApplication.run(BatchApplication.class, args);
   }
+
   public static boolean isWindows() {
     return (OS.indexOf("win") >= 0);
+  }
+
+  public static void printUsageFomat() {
+    System.err.println(
+        "Argument Error:"
+            + "\n Usage: java -jar <jar_file> <layout_file> <request_file>"
+            + "\n Example: java -jar target/theater.seating-0.0.1-SNAPSHOT.jar /Users/selva/theater_layout.txt /Users/selva/theater_seating_request.txt"
+            + "\n java -jar target\\theater.seating-0.0.1-SNAPSHOT.jar C:\\apps\\theater_layout.txt C:\\apps\\theater_seating_request.txt");
   }
 }
