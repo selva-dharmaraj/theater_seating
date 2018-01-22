@@ -2,9 +2,12 @@ Theater Seating Arrangement:
 ===========================
 
 
-Code language: Java8
-Framework: Spring boot, Spring batch
+Code language: Java 8
+
+Libraries: JDK, Spring
+
 Build tool: Maven
+
 
 How to run the program:
 
