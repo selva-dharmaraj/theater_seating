@@ -24,7 +24,8 @@ https://github.com/selva-dharmaraj/theater_seating/blob/master/theater_seating_r
 3. Execute below command: (Please make sure you have JRE8 available in your computer)
 
 Usage: 
-java -jar <jar_file> <layout_file> <request_file>"
+========
+java -jar <jar_file> <layout_file> <request_file>
 
 java -jar theater.seating-0.0.1-SNAPSHOT.jar /Users/selva/theater_layout.txt /Users/selva/theater_seating_request.txt
 
