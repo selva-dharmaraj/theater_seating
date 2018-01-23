@@ -101,7 +101,7 @@ public class TicketRequestHandler {
             + " seat(s)");
     LOGGER.info(
         "Total eligible seats: "
-            + getEligibleCustomerTickets().length
+            + getRequestsCountRequiresAction()
             + " request(s) "
             + getRequestsCountRequiresAction()
             + " seat(s)");
@@ -128,16 +128,16 @@ public class TicketRequestHandler {
               + section.getAvailableSeatsCount());
     }
 
-    List<Integer> eligibleCustomerRequests =
+    List<Integer> requestsFitInSection =
         CustomerRequestFinder.findEligibleCustomerRequests(
-            getEligibleCustomerTickets(), section.getAvailableSeatsCount());
+            getRequestRequiresActionInArray(), section.getAvailableSeatsCount());
 
-    if (eligibleCustomerRequests != null) {
-      eligibleCustomerRequests
+    if (requestsFitInSection != null) {
+      requestsFitInSection
           .stream()
           .forEach(
               ticketsCount -> {
-                getRequestsCanBeAccepted()
+                getRequestsRequireAction()
                     .stream()
                     .filter(mailInRequest -> mailInRequest.getTicketsCount() == ticketsCount)
                     .findFirst()
@@ -183,7 +183,7 @@ public class TicketRequestHandler {
     int availableSeats = section.getAvailableSeatsCount();
     AtomicBoolean returnValue = new AtomicBoolean(false);
     if (availableSeats > 0) {
-      getRequestsCanBeAccepted()
+      getRequestsRequireAction()
           .stream()
           .filter(mailInRequest -> mailInRequest.getTicketsCount() <= availableSeats)
           .findFirst()
@@ -280,12 +280,10 @@ public class TicketRequestHandler {
    *
    * @return DOCUMENT ME!
    */
-  public List<MailInRequest> getRequestsCanBeAccepted() {
+  public List<MailInRequest> getRequestsRequireAction() {
     return mailInRequests
         .stream()
-        .filter(mailInRequest -> !mailInRequest.isRequireSplit())
-        .filter(mailInRequest -> !mailInRequest.isCanNotHandle())
-        .filter(mailInRequest -> !mailInRequest.isAccepted())
+        .filter(mailInRequest -> !mailInRequest.isActionTaken())
         .collect(Collectors.toList());
   }
 
@@ -376,14 +374,14 @@ public class TicketRequestHandler {
 
   // ~------------------------------------------------------------------------------------------------------------------
 
-  private int[] getEligibleCustomerTickets() {
-    return getRequestsCanBeAccepted().stream().mapToInt(MailInRequest::getTicketsCount).toArray();
+  private int[] getRequestRequiresActionInArray() {
+    return getRequestsRequireAction().stream().mapToInt(MailInRequest::getTicketsCount).toArray();
   }
 
   // ~------------------------------------------------------------------------------------------------------------------
 
-  public void setNonAcceptedRequestsToCanNotHandleList() {
-    getRequestsCanBeAccepted()
+  public void moveRequestsRequireActionToCanNotHandleList() {
+    getRequestsRequireAction()
         .stream()
         .forEach(
             mailInRequest -> {

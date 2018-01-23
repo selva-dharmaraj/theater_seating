@@ -10,9 +10,14 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class Seat {
+  // ~Static-fields/initializers----------------------------------------------------------------------------------------
+
+  public static final String EMPTY = "__";
+  public static final String FILLED = "X";
+
   // ~Instance-fields---------------------------------------------------------------------------------------------------
 
-  private String seatAvailable = "__";
+  private String seatAvailable = EMPTY;
 
   private String seatName;
 

@@ -56,7 +56,7 @@ public class Section {
   public List<Seat> fillAllSeats() {
     List<Seat> returnList = null;
     returnList = getAvailableSeats().stream().collect(Collectors.toList());
-    returnList.stream().forEach(e -> e.setSeatAvailable("X"));
+    returnList.stream().forEach(e -> e.setSeatAvailable(Seat.FILLED));
 
     return returnList;
   }
@@ -74,7 +74,7 @@ public class Section {
 
     if (fillCount < getAvailableSeatsCount()) {
       returnList = getAvailableSeats().stream().limit(fillCount).collect(Collectors.toList());
-      returnList.stream().limit(fillCount).forEach(e -> e.setSeatAvailable("X"));
+      returnList.stream().limit(fillCount).forEach(e -> e.setSeatAvailable(Seat.FILLED));
     }
 
     return returnList;
@@ -90,7 +90,7 @@ public class Section {
   public List<Seat> getAvailableSeats() {
     return seats
         .stream()
-        .filter(seat -> seat.getSeatAvailable().equals("__"))
+        .filter(seat -> seat.getSeatAvailable().equals(Seat.EMPTY))
         .collect(Collectors.toList());
   }
 
@@ -102,7 +102,7 @@ public class Section {
    * @return DOCUMENT ME!
    */
   public int getAvailableSeatsCount() {
-    return (int) seats.stream().filter(seat -> seat.getSeatAvailable().equals("__")).count();
+    return (int) seats.stream().filter(seat -> seat.getSeatAvailable().equals(Seat.EMPTY)).count();
   }
 
   // ~------------------------------------------------------------------------------------------------------------------

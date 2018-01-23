@@ -116,7 +116,7 @@ public class SeatingArrangementTask implements Tasklet {
             });
 
     // set remaining to can't handle
-    mailInRequests.setNonAcceptedRequestsToCanNotHandleList();
+    mailInRequests.moveRequestsRequireActionToCanNotHandleList();
 
     System.out.println("\n\nTheater layout after seat arrangements:\n");
     theaterLayout.displayTheaterLayout();
