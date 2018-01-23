@@ -28,7 +28,7 @@ public class CustomerRequestFinder {
     }
 
     if (Arrays.stream(acc).sum() == sum) {
-      //System.out.println(Arrays.toString(acc));
+      // System.out.println(Arrays.toString(acc));
       results.add(Arrays.stream(acc).boxed().collect(Collectors.toList()));
 
       return;
@@ -46,7 +46,8 @@ public class CustomerRequestFinder {
   /**
    * This utility method has algorithm to identify the maximum customer requests which can be fit in
    * the given section. This method finds all possible sub set combination matching the sum
-   * (section) and returns the sub set contain maximum customers.
+   * (section) and returns the sub set contain maximum customers or min customers. As per multiple
+   * run screnario Minimum customer option fills more seats efficiently.
    *
    * @param requests available requests for the given section.
    * @param sectionCount count of given section
@@ -58,7 +59,7 @@ public class CustomerRequestFinder {
     collectCombination(requests, -1, sectionCount, new int[] {}, combinationOfRequest);
 
     Optional<List<Integer>> max =
-        combinationOfRequest.stream().max(Comparator.comparing(List::size));
+        combinationOfRequest.stream().min(Comparator.comparing(List::size));
     List uniqueCombinationRequest = max.isPresent() ? max.get() : null;
     LOGGER.info(
         String.format(

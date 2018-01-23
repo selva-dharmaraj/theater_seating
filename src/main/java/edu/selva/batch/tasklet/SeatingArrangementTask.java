@@ -92,23 +92,31 @@ public class SeatingArrangementTask implements Tasklet {
               row.getSections()
                   .forEach(
                       section -> {
-                        if (LOGGER.isDebugEnabled()) {
-                          LOGGER.debug(
-                              "Working on Section: "
-                                  + section.getSectionName()
-                                  + "\tAvailable Seats: "
-                                  + section.getAvailableSeatsCount());
-                        }
+                        mailInRequests.fillAllSeatsInSection(row, section);
+                      });
+            });
 
-                        if (mailInRequests.fillEligibleCustomersInSection(row, section)) {
-                          section.fillAllSeats();
-                        } else if (mailInRequests.isActionTakenOnAllRequests()) {
-                          if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Hooray!!!! all eligible request seats are assigned!!!");
-                          }
+    // Now look for partial filling with small group requests.
+
+    theaterLayout
+        .getRows()
+        .stream()
+        .forEach(
+            row -> {
+              row.getSections()
+                  .stream()
+                  .filter(section -> section.getAvailableSeatsCount() > 0)
+                  .forEach(
+                      section -> {
+                        boolean check = true;
+                        while (check) {
+                          check = mailInRequests.fillPartialSeatsInSection(row, section);
                         }
                       });
             });
+
+    // set remaining to can't handle
+    mailInRequests.setNonAcceptedRequestsToCanNotHandleList();
 
     System.out.println("\n\nTheater layout after seat arrangements:\n");
     theaterLayout.displayTheaterLayout();

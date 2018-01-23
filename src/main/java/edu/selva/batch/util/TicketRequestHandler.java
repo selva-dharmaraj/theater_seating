@@ -2,6 +2,7 @@ package edu.selva.batch.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -118,7 +119,15 @@ public class TicketRequestHandler {
    * @param section given section in the theater.
    * @return boolean - if the section is filled completely returns true or return false.
    */
-  public boolean fillEligibleCustomersInSection(Row row, Section section) {
+  public boolean fillAllSeatsInSection(Row row, Section section) {
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.info(
+          "Working on filling Section: "
+              + section.getSectionName()
+              + "\tAvailable Seats: "
+              + section.getAvailableSeatsCount());
+    }
+
     List<Integer> eligibleCustomerRequests =
         CustomerRequestFinder.findEligibleCustomerRequests(
             getEligibleCustomerTickets(), section.getAvailableSeatsCount());
@@ -127,10 +136,10 @@ public class TicketRequestHandler {
       eligibleCustomerRequests
           .stream()
           .forEach(
-              integer -> {
+              ticketsCount -> {
                 getRequestsCanBeAccepted()
                     .stream()
-                    .filter(mailInRequest -> mailInRequest.getTicketsCount() == integer)
+                    .filter(mailInRequest -> mailInRequest.getTicketsCount() == ticketsCount)
                     .findFirst()
                     .ifPresent(
                         mailInRequest -> {
@@ -145,12 +154,55 @@ public class TicketRequestHandler {
                                   + section.getSectionNumber());
                         });
               });
-
+      section.fillAllSeats();
       return true;
     }
 
     return false;
-  } // end method fillEligibleCustomersInSection
+  } // end method fillAllSeatsInSection
+
+  // ~------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * This is will try to fill remaining section with partial eligible seats.
+   *
+   * @param row given row in the theater.
+   * @param section given section in the theater.
+   * @return boolean - if the section is filled partially returns true or return false.
+   */
+  public boolean fillPartialSeatsInSection(Row row, Section section) {
+
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.info(
+          "Working on filling partial Section: "
+              + section.getSectionName()
+              + "\tAvailable Seats: "
+              + section.getAvailableSeatsCount());
+    }
+
+    int availableSeats = section.getAvailableSeatsCount();
+    AtomicBoolean returnValue = new AtomicBoolean(false);
+    if (availableSeats > 0) {
+      getRequestsCanBeAccepted()
+          .stream()
+          .filter(mailInRequest -> mailInRequest.getTicketsCount() <= availableSeats)
+          .findFirst()
+          .ifPresent(
+              mailInRequest -> {
+                System.out.println("Found -> " + mailInRequest);
+                mailInRequest.setAccepted(true);
+                mailInRequest.setActionTaken(true);
+                mailInRequest.setRowNumber(row.getRowNumber());
+                mailInRequest.setSectionNumber(section.getSectionNumber());
+                mailInRequest.setRequestStatus(
+                    "Row " + row.getRowNumber() + " Section " + section.getSectionNumber());
+                section.fillSeats(mailInRequest.getTicketsCount());
+                returnValue.set(true);
+              });
+    }
+
+    return returnValue.get();
+  } // end method fillAllSeatsInSection
 
   // ~------------------------------------------------------------------------------------------------------------------
 
@@ -325,10 +377,19 @@ public class TicketRequestHandler {
   // ~------------------------------------------------------------------------------------------------------------------
 
   private int[] getEligibleCustomerTickets() {
-    return
-        getRequestsCanBeAccepted()
-            .stream()
-            .mapToInt(MailInRequest::getTicketsCount)
-            .toArray();
+    return getRequestsCanBeAccepted().stream().mapToInt(MailInRequest::getTicketsCount).toArray();
+  }
+
+  // ~------------------------------------------------------------------------------------------------------------------
+
+  public void setNonAcceptedRequestsToCanNotHandleList() {
+    getRequestsCanBeAccepted()
+        .stream()
+        .forEach(
+            mailInRequest -> {
+              mailInRequest.setCanNotHandle(true);
+              mailInRequest.setActionTaken(true);
+              mailInRequest.setRequestStatus("Sorry, we can't handle your party.");
+            });
   }
 } // end class TicketRequestHandler
