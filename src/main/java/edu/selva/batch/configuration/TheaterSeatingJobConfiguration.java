@@ -52,7 +52,7 @@ public class TheaterSeatingJobConfiguration {
 
   @Autowired private JobBuilderFactory jobBuilderFactory;
 
-  private TicketRequestHandler mailInRequests = new TicketRequestHandler();
+  private TicketRequestHandler ticketRequestHandler = new TicketRequestHandler();
 
   @Autowired private StepBuilderFactory stepBuilderFactory;
 
@@ -70,7 +70,7 @@ public class TheaterSeatingJobConfiguration {
     return new ItemProcessor() {
       @Override
       public MailInRequest process(Object o) throws Exception {
-        mailInRequests.addMailInRequest((MailInRequest) o);
+        ticketRequestHandler.addMailInRequest((MailInRequest) o);
 
         return null;
       }
@@ -158,7 +158,7 @@ public class TheaterSeatingJobConfiguration {
   public Step seatingArrangementStep() {
     return stepBuilderFactory
         .get("seatingArrangementStep")
-        .tasklet(new SeatingArrangementTask(theaterLayout, mailInRequests))
+        .tasklet(new SeatingArrangementTask(theaterLayout, ticketRequestHandler))
         .build();
   }
 

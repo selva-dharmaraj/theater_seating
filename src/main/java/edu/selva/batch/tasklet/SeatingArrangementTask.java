@@ -33,7 +33,7 @@ public class SeatingArrangementTask implements Tasklet {
 
   // ~Instance-fields---------------------------------------------------------------------------------------------------
 
-  private TicketRequestHandler mailInRequests;
+  private TicketRequestHandler ticketRequestHandler;
   private TheaterLayout theaterLayout;
 
   // ~Constructors------------------------------------------------------------------------------------------------------
@@ -45,11 +45,11 @@ public class SeatingArrangementTask implements Tasklet {
    * Creates a new SeatingArrangementTask object.
    *
    * @param theaterLayout DOCUMENT ME!
-   * @param mailInRequests DOCUMENT ME!
+   * @param ticketRequestHandler DOCUMENT ME!
    */
-  public SeatingArrangementTask(TheaterLayout theaterLayout, TicketRequestHandler mailInRequests) {
+  public SeatingArrangementTask(TheaterLayout theaterLayout, TicketRequestHandler ticketRequestHandler) {
     this.theaterLayout = theaterLayout;
-    this.mailInRequests = mailInRequests;
+    this.ticketRequestHandler = ticketRequestHandler;
   }
 
   // ~Methods-----------------------------------------------------------------------------------------------------------
@@ -70,9 +70,9 @@ public class SeatingArrangementTask implements Tasklet {
     2. Identify and remove can't handle and split requests from the evaluation.
     3. Display the current request summary
      */
-    mailInRequests.init(theaterLayout);
+    ticketRequestHandler.init(theaterLayout);
     System.out.println("\n\nMail in ticket request summary\n");
-    mailInRequests.displayTicketRequestSummary(theaterLayout);
+    ticketRequestHandler.displayTicketRequestSummary(theaterLayout);
 
     /*
     1. Start filling seats from the first row using max customer combination without leaving the empty space in the section.
@@ -92,7 +92,7 @@ public class SeatingArrangementTask implements Tasklet {
               row.getSections()
                   .forEach(
                       section -> {
-                        mailInRequests.fillAllSeatsInSection(row, section);
+                        ticketRequestHandler.fillAllSeatsInSection(row, section);
                       });
             });
 
@@ -110,18 +110,18 @@ public class SeatingArrangementTask implements Tasklet {
                       section -> {
                         boolean check = true;
                         while (check) {
-                          check = mailInRequests.fillPartialSeatsInSection(row, section);
+                          check = ticketRequestHandler.fillPartialSeatsInSection(row, section);
                         }
                       });
             });
 
     // set remaining to can't handle
-    mailInRequests.moveRequestsRequireActionToCanNotHandleList();
+    ticketRequestHandler.moveRequestsRequireActionToCanNotHandleList();
 
     System.out.println("\n\nTheater layout after seat arrangements:\n");
     theaterLayout.displayTheaterLayout();
     LOGGER.info("\n\nOutput:\n");
-    mailInRequests.displayTicketRequestResuts();
+    ticketRequestHandler.displayTicketRequestResuts();
     System.out.println("\n\n");
 
     return null;
