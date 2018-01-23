@@ -15,9 +15,10 @@ import edu.selva.batch.util.TicketRequestHandler;
 
 /**
  * This Tasklet responsible for Seat arrangement based on theater layout and mail in requests
- * received. This Tasklet perform: 1. Capture curring layout. 2. Capture current mail in requests.
- * 3. Display the summary of current seat arrangement status summary. 4. Seat arrangement. 5.
- * Display the output.
+ * received. This Tasklet perform:
+ *
+ * <p>1. Capture current layout. 2. Capture current mail in requests. 3. Print the summary of
+ * current seat arrangement status. 4. Seat arrangement. 5. Prints the seat arrangement results.
  *
  * @author Selva Dharmaraj
  * @see edu.selva.batch.pojo.TheaterLayout
