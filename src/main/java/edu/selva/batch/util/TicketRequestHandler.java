@@ -100,7 +100,7 @@ public class TicketRequestHandler {
             + " seat(s)");
     LOGGER.info(
         "Total eligible seats: "
-            + getEligibleCustomerTickets().size()
+            + getEligibleCustomerTickets().length
             + " request(s) "
             + getRequestsCountRequiresAction()
             + " seat(s)");
@@ -324,13 +324,11 @@ public class TicketRequestHandler {
 
   // ~------------------------------------------------------------------------------------------------------------------
 
-  private List<Integer> getEligibleCustomerTickets() {
-    List<Integer> ticketsList =
+  private int[] getEligibleCustomerTickets() {
+    return
         getRequestsCanBeAccepted()
             .stream()
-            .map(MailInRequest::getTicketsCount)
-            .collect(Collectors.toList());
-
-    return ticketsList;
+            .mapToInt(MailInRequest::getTicketsCount)
+            .toArray();
   }
 } // end class TicketRequestHandler

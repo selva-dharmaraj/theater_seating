@@ -21,6 +21,28 @@ public class CustomerRequestFinder {
 
   // ~Methods-----------------------------------------------------------------------------------------------------------
 
+  public static void collectCombination(
+      int[] array, int pos, int sum, int[] acc, Set<List<Integer>> results) {
+    if (Arrays.stream(acc).sum() > sum) {
+      return;
+    }
+
+    if (Arrays.stream(acc).sum() == sum) {
+      //System.out.println(Arrays.toString(acc));
+      results.add(Arrays.stream(acc).boxed().collect(Collectors.toList()));
+
+      return;
+    }
+
+    for (int i = pos + 1; i < array.length; i++) {
+      int[] newAcc = new int[acc.length + 1];
+      System.arraycopy(acc, 0, newAcc, 0, acc.length);
+      newAcc[acc.length] = array[i];
+      collectCombination(array, i, sum, newAcc, results);
+    }
+  }
+  // ~------------------------------------------------------------------------------------------------------------------
+
   /**
    * This utility method has algorithm to identify the maximum customer requests which can be fit in
    * the given section. This method finds all possible sub set combination matching the sum
@@ -30,80 +52,18 @@ public class CustomerRequestFinder {
    * @param sectionCount count of given section
    * @return Nothing.
    */
-  public static List<Integer> findEligibleCustomerRequests(
-      List<Integer> requests, int sectionCount) {
-    Set<List> combinationOfRequest = new HashSet<>();
+  public static List<Integer> findEligibleCustomerRequests(int[] requests, int sectionCount) {
+    Set<List<Integer>> combinationOfRequest = new HashSet<>();
 
-    if ((requests == null) || requests.isEmpty()) {
-      LOGGER.info(
-          String.format(
-              "trying to fill section {%s} with available request(s) {%s} and found matched {%s}",
-              sectionCount, requests, requests));
+    collectCombination(requests, -1, sectionCount, new int[] {}, combinationOfRequest);
 
-      return null;
-    }
-
-    if ((requests.size() == 1) && (requests.get(0) == sectionCount)) {
-      LOGGER.info(
-          String.format(
-              "trying to fill section {%s} with available request(s) {%s} and found matched {%s}",
-              sectionCount, requests, requests));
-
-      return requests;
-    }
-
-    Stack<Integer> stack = new Stack<>();
-    stack.push(0);
-
-    while (true) {
-      int i = stack.peek();
-
-      if (i == (requests.size() - 1)) {
-        stack.pop();
-
-        if (stack.isEmpty()) {
-          break;
-        }
-
-        int last = stack.pop();
-        stack.push(last + 1);
-      } else {
-        if ((i == 0)
-            && (stack.stream().map(e -> requests.get(e)).mapToInt(Integer::intValue).sum()
-                == sectionCount)) {
-          List<Integer> fitInRequest =
-              stack.stream().mapToInt(e -> requests.get(e)).boxed().collect(Collectors.toList());
-
-          if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Special scenario...");
-            LOGGER.debug("List: :" + fitInRequest);
-          }
-
-          combinationOfRequest.add(fitInRequest);
-        }
-
-        stack.push(i + 1);
-      } // end if-else
-
-      if (stack.stream().map(e -> requests.get(e)).mapToInt(Integer::intValue).sum()
-          == sectionCount) {
-        List<Integer> fitInRequest =
-            stack.stream().mapToInt(e -> requests.get(e)).boxed().collect(Collectors.toList());
-
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug("List: :" + fitInRequest);
-        }
-
-        combinationOfRequest.add(fitInRequest);
-      }
-    } // end while
-
-    Optional<List> max = combinationOfRequest.stream().max(Comparator.comparing(List::size));
+    Optional<List<Integer>> max =
+        combinationOfRequest.stream().max(Comparator.comparing(List::size));
     List uniqueCombinationRequest = max.isPresent() ? max.get() : null;
     LOGGER.info(
         String.format(
             "trying to fill section {%s} with available request(s) {%s} and found matched {%s}",
-            sectionCount, requests, uniqueCombinationRequest));
+            sectionCount, Arrays.toString(requests), uniqueCombinationRequest));
 
     return uniqueCombinationRequest;
   } // end method findEligibleCustomerRequests

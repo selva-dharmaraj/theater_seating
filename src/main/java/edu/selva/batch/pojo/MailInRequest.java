@@ -251,7 +251,7 @@ public class MailInRequest {
    * @return DOCUMENT ME!
    */
   public String ticketRequestResultToString() {
-    return getCustomerName() + " " + getRequestStatus();
+    return getCustomerName() + " (" + getTicketsCount() + ") - " + getRequestStatus();
   }
 
   // ~------------------------------------------------------------------------------------------------------------------
