@@ -1,10 +1,11 @@
 package edu.selva.batch;
 
+import java.io.File;
+
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.io.File;
 
 /**
  * This is SprintBootApplication class. This application takes two inputs as String argument. This
@@ -12,21 +13,43 @@ import java.io.File;
  * input file data in to memory and seat arrangement task.
  *
  * @author Selva Dharmaraj
- * @since 2018-01-22
  * @see edu.selva.batch.configuration.TheaterSeatingJobConfiguration
+ * @version 1.0, 2018-01-22
  */
-@SpringBootApplication
 @EnableBatchProcessing
+@SpringBootApplication
 public class BatchApplication {
+  // ~Static-fields/initializers----------------------------------------------------------------------------------------
+
   private static String OS = System.getProperty("os.name").toLowerCase();
 
-  public static void main(String[] args) throws Exception {
+  // ~Methods-----------------------------------------------------------------------------------------------------------
 
+  /**
+   * DOCUMENT ME!
+   *
+   * @return DOCUMENT ME!
+   */
+  public static boolean isWindows() {
+    return (OS.indexOf("win") >= 0);
+  }
+
+  // ~------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @param args DOCUMENT ME!
+   * @throws Exception DOCUMENT ME!
+   */
+  public static void main(String[] args) throws Exception {
     if (args.length > 1) {
       String filePrefix = "file://";
+
       if (isWindows()) {
         filePrefix = "file:///";
       }
+
       try {
         System.setProperty("layoutFile", filePrefix + new File(args[0]).getAbsolutePath());
         System.setProperty("requestFile", filePrefix + new File(args[1]).getAbsolutePath());
@@ -39,14 +62,14 @@ public class BatchApplication {
       printUsageFomat();
       System.exit(1);
     }
+
     // Run Spring batch job
     SpringApplication.run(BatchApplication.class, args);
   }
 
-  public static boolean isWindows() {
-    return (OS.indexOf("win") >= 0);
-  }
+  // ~------------------------------------------------------------------------------------------------------------------
 
+  /** DOCUMENT ME! */
   public static void printUsageFomat() {
     System.err.println(
         "Argument Error:"
@@ -54,4 +77,4 @@ public class BatchApplication {
             + "\n Example: java -jar target/theater.seating-0.0.1-SNAPSHOT.jar /Users/selva/theater_layout.txt /Users/selva/theater_seating_request.txt"
             + "\n java -jar target\\theater.seating-0.0.1-SNAPSHOT.jar C:\\apps\\theater_layout.txt C:\\apps\\theater_seating_request.txt");
   }
-}
+} // end class BatchApplication

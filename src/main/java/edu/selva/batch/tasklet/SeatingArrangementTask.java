@@ -1,40 +1,63 @@
 package edu.selva.batch.tasklet;
 
-import edu.selva.batch.pojo.TheaterLayout;
-import edu.selva.batch.util.TicketRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+
 import org.springframework.stereotype.Component;
 
+import edu.selva.batch.pojo.TheaterLayout;
+import edu.selva.batch.util.TicketRequestHandler;
+
 /**
- * This Tasklet responsible for Seat arrangement based on threater layout and mail in requests
+ * This Tasklet responsible for Seat arrangement based on theater layout and mail in requests
  * received. This Tasklet perform: 1. Capture curring layout. 2. Capture current mail in requests.
  * 3. Display the summary of current seat arrangement status summary. 4. Seat arrangement. 5.
  * Display the output.
  *
  * @author Selva Dharmaraj
- * @since 2018-01-22
- *
  * @see edu.selva.batch.pojo.TheaterLayout
  * @see edu.selva.batch.util.TicketRequestHandler
+ * @version 1.0, 2018-01-22
  */
 @Component
 public class SeatingArrangementTask implements Tasklet {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SeatingArrangementTask.class);
-  private TheaterLayout theaterLayout;
-  private TicketRequestHandler mailInRequests;
+  // ~Static-fields/initializers----------------------------------------------------------------------------------------
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(SeatingArrangementTask.class);
+
+  // ~Instance-fields---------------------------------------------------------------------------------------------------
+
+  private TicketRequestHandler mailInRequests;
+  private TheaterLayout theaterLayout;
+
+  // ~Constructors------------------------------------------------------------------------------------------------------
+
+  /** Creates a new SeatingArrangementTask object. */
   public SeatingArrangementTask() {}
 
+  /**
+   * Creates a new SeatingArrangementTask object.
+   *
+   * @param theaterLayout DOCUMENT ME!
+   * @param mailInRequests DOCUMENT ME!
+   */
   public SeatingArrangementTask(TheaterLayout theaterLayout, TicketRequestHandler mailInRequests) {
     this.theaterLayout = theaterLayout;
     this.mailInRequests = mailInRequests;
   }
 
+  // ~Methods-----------------------------------------------------------------------------------------------------------
+
+  /**
+   * @see
+   *     org.springframework.batch.core.step.tasklet.Tasklet#execute(org.springframework.batch.core.StepContribution,
+   *     org.springframework.batch.core.scope.context.ChunkContext)
+   */
   @Override
   public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext)
       throws Exception {
@@ -51,13 +74,13 @@ public class SeatingArrangementTask implements Tasklet {
     mailInRequests.displayTicketRequestSummary(theaterLayout);
 
     /*
-     1. Start filling seats from the first row using max customer combination without leaving the empty space in the section.
-     2. If you could not able to fill any section without leaving an empty space in the section then, move on to next section.
-     3. After the entire process is over reiterate until the same step for remaining available seats until no request can be taken.
-     4. At this stage of calculation, all remaining requests should be split.
-     5. Find the groups who can fit by split based on the entire availability.
-     6. Send notification to those group members an option to split and accommodate.
-     7. Remaining requests should be added to cannot handle request.
+    1. Start filling seats from the first row using max customer combination without leaving the empty space in the section.
+    2. If you could not able to fill any section without leaving an empty space in the section then, move on to next section.
+    3. After the entire process is over reiterate until the same step for remaining available seats until no request can be taken.
+    4. At this stage of calculation, all remaining requests should be split.
+    5. Find the groups who can fit by split based on the entire availability.
+    6. Send notification to those group members an option to split and accommodate.
+    7. Remaining requests should be added to cannot handle request.
     */
     System.out.println("\n\nWorking on seat arrangements...\n");
     theaterLayout
@@ -68,16 +91,20 @@ public class SeatingArrangementTask implements Tasklet {
               row.getSections()
                   .forEach(
                       section -> {
-                        LOGGER.debug(
-                            "Working on Section: "
-                                + section.getSectionName()
-                                + "\tAvailable Seats: "
-                                + section.getAvailableSeatsCount());
+                        if (LOGGER.isDebugEnabled()) {
+                          LOGGER.debug(
+                              "Working on Section: "
+                                  + section.getSectionName()
+                                  + "\tAvailable Seats: "
+                                  + section.getAvailableSeatsCount());
+                        }
 
                         if (mailInRequests.fillEligibleCustomersInSection(row, section)) {
                           section.fillAllSeats();
                         } else if (mailInRequests.isActionTakenOnAllRequests()) {
-                          LOGGER.debug("Hooray!!!! all eligible request seats are assigned!!!");
+                          if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Hooray!!!! all eligible request seats are assigned!!!");
+                          }
                         }
                       });
             });
@@ -87,6 +114,7 @@ public class SeatingArrangementTask implements Tasklet {
     LOGGER.info("\n\nOutput:\n");
     mailInRequests.displayTicketRequestResuts();
     System.out.println("\n\n");
+
     return null;
-  }
-}
+  } // end method execute
+} // end class SeatingArrangementTask
