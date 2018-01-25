@@ -84,6 +84,17 @@ public class Row {
    *
    * @return DOCUMENT ME!
    */
+  public int getTotalAvailableSeats() {
+    return getSections().stream().mapToInt(section -> section.getAvailableSeatsCount()).sum();
+  }
+
+  // ~------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @return DOCUMENT ME!
+   */
   public int getTotalSeatsInLargestSection() {
     return getSections()
         .stream()

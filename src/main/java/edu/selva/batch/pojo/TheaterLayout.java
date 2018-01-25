@@ -101,6 +101,17 @@ public class TheaterLayout {
    *
    * @return DOCUMENT ME!
    */
+  public int getTotalAvailableSeats() {
+    return getRows().stream().mapToInt(row -> row.getTotalAvailableSeats()).sum();
+  }
+
+  // ~------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @return DOCUMENT ME!
+   */
   public int getTotalSeatsInLargestSection() {
     return getRows()
         .stream()

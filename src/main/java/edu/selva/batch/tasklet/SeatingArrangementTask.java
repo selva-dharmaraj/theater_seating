@@ -47,7 +47,8 @@ public class SeatingArrangementTask implements Tasklet {
    * @param theaterLayout DOCUMENT ME!
    * @param ticketRequestHandler DOCUMENT ME!
    */
-  public SeatingArrangementTask(TheaterLayout theaterLayout, TicketRequestHandler ticketRequestHandler) {
+  public SeatingArrangementTask(
+      TheaterLayout theaterLayout, TicketRequestHandler ticketRequestHandler) {
     this.theaterLayout = theaterLayout;
     this.ticketRequestHandler = ticketRequestHandler;
   }
@@ -115,6 +116,13 @@ public class SeatingArrangementTask implements Tasklet {
                       });
             });
 
+    /*
+    1. Now remaining group request must be split
+    2. Bring back current split requires back to action not taken pool
+    3. find groups can fit by splitting them based on remaining available seats
+    */
+    ticketRequestHandler.resetRequestsRequireSplit();
+    ticketRequestHandler.updateGroupRequestEligibleForSplit(theaterLayout);
     // set remaining to can't handle
     ticketRequestHandler.moveRequestsRequireActionToCanNotHandleList();
 
@@ -123,7 +131,9 @@ public class SeatingArrangementTask implements Tasklet {
     LOGGER.info("\n\nOutput:\n");
     ticketRequestHandler.displayTicketRequestResuts();
     System.out.println("\n\n");
-
+    System.out.println("\n\nMail in ticket request summary\n");
+    ticketRequestHandler.displayTicketRequestSummary(theaterLayout);
+    System.out.println("\n\n");
     return null;
   } // end method execute
 } // end class SeatingArrangementTask

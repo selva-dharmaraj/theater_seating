@@ -64,7 +64,8 @@ public class BatchApplication {
     }
 
     // Run Spring batch job
-    SpringApplication.run(BatchApplication.class, args);
+    // SpringApplication.run(BatchApplication.class, args);
+    JobStarter.execute("theaterSeatingJob");
   }
 
   // ~------------------------------------------------------------------------------------------------------------------

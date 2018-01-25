@@ -2,10 +2,17 @@ package edu.selva.batch;
 
 import java.io.File;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
+import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import org.springframework.test.context.junit4.SpringRunner;
@@ -41,5 +48,18 @@ public class BatchApplicationTests {
   @Test
   public void testJob() {
     System.out.println("TEST method-------------------------------");
+    try {
+      JobStarter.execute("theaterSeatingJob");
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (JobParametersInvalidException e) {
+      e.printStackTrace();
+    } catch (JobExecutionAlreadyRunningException e) {
+      e.printStackTrace();
+    } catch (JobRestartException e) {
+      e.printStackTrace();
+    } catch (JobInstanceAlreadyCompleteException e) {
+      e.printStackTrace();
+    }
   }
 } // end class BatchApplicationTests

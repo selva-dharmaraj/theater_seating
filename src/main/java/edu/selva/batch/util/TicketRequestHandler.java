@@ -3,6 +3,7 @@ package edu.selva.batch.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -81,6 +82,7 @@ public class TicketRequestHandler {
    */
   public void displayTicketRequestSummary(TheaterLayout theaterLayout) {
     LOGGER.info("Theater seat capacity: " + theaterLayout.getTotalSeats() + " seat(s)");
+    LOGGER.info("Available seats: " + theaterLayout.getTotalAvailableSeats() + " seat(s)");
     LOGGER.info(
         "Requested seats: "
             + getMailInRequests().size()
@@ -101,7 +103,7 @@ public class TicketRequestHandler {
             + " seat(s)");
     LOGGER.info(
         "Total eligible seats: "
-            + getRequestsCountRequiresAction()
+            + getRequestsRequireAction().size()
             + " request(s) "
             + getRequestsCountRequiresAction()
             + " seat(s)");
@@ -122,7 +124,7 @@ public class TicketRequestHandler {
   public boolean fillAllSeatsInSection(Row row, Section section) {
     if (LOGGER.isDebugEnabled()) {
       LOGGER.info(
-          "Working on filling Section: "
+          "Working on filling section: "
               + section.getSectionName()
               + "\tAvailable Seats: "
               + section.getAvailableSeatsCount());
@@ -130,9 +132,12 @@ public class TicketRequestHandler {
 
     List<Integer> requestsFitInSection =
         CustomerRequestFinder.findEligibleCustomerRequests(
-            getRequestRequiresActionInArray(), section.getAvailableSeatsCount());
+            getRequestRequiresActionInArray(), section.getAvailableSeatsCount(), true, true);
 
     if (requestsFitInSection != null) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.info("found full match for this section");
+      }
       requestsFitInSection
           .stream()
           .forEach(
@@ -156,6 +161,10 @@ public class TicketRequestHandler {
               });
       section.fillAllSeats();
       return true;
+    } else {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.info("no full match for this section");
+      }
     }
 
     return false;
@@ -173,8 +182,8 @@ public class TicketRequestHandler {
   public boolean fillPartialSeatsInSection(Row row, Section section) {
 
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.info(
-          "Working on filling partial Section: "
+      LOGGER.debug(
+          "Working on filling partial section: "
               + section.getSectionName()
               + "\tAvailable Seats: "
               + section.getAvailableSeatsCount());
@@ -189,7 +198,6 @@ public class TicketRequestHandler {
           .findFirst()
           .ifPresent(
               mailInRequest -> {
-                System.out.println("Found -> " + mailInRequest);
                 mailInRequest.setAccepted(true);
                 mailInRequest.setActionTaken(true);
                 mailInRequest.setRowNumber(row.getRowNumber());
@@ -197,8 +205,20 @@ public class TicketRequestHandler {
                 mailInRequest.setRequestStatus(
                     "Row " + row.getRowNumber() + " Section " + section.getSectionNumber());
                 section.fillSeats(mailInRequest.getTicketsCount());
+
                 returnValue.set(true);
               });
+    }
+
+    if (returnValue.get()) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("found partial match for this section");
+      }
+
+    } else {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("no partial match found for this section");
+      }
     }
 
     return returnValue.get();
@@ -388,6 +408,92 @@ public class TicketRequestHandler {
               mailInRequest.setCanNotHandle(true);
               mailInRequest.setActionTaken(true);
               mailInRequest.setRequestStatus("Sorry, we can't handle your party.");
+            });
+  }
+
+  // ~------------------------------------------------------------------------------------------------------------------
+
+  public void updateGroupRequestEligibleForSplit(TheaterLayout theaterLayout) {
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.info("Working on updating requests to split against available seats");
+    }
+    if (theaterLayout.getTotalAvailableSeats() == 0) {
+      LOGGER.info("All seates are already filled!!");
+      return;
+    }
+
+    List<Integer> requestFitInAfterSplit = null;
+    // if entire remaining request is <= available seats. Set all customer to call us for split.
+    if (getRequestsRequireAction()
+            .stream()
+            .mapToInt(mailInRequest -> mailInRequest.getTicketsCount())
+            .sum()
+        <= theaterLayout.getTotalAvailableSeats()) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.info("Entire requests can be split in to muliple section");
+      }
+      requestFitInAfterSplit =
+          getRequestsRequireAction()
+              .stream()
+              .map(MailInRequest::getTicketsCount)
+              .collect(Collectors.toList());
+    } else {
+
+      requestFitInAfterSplit =
+          CustomerRequestFinder.findEligibleCustomerRequests(
+              getRequestRequiresActionInArray(),
+              theaterLayout.getTotalAvailableSeats(),
+              true,
+              true);
+
+      // could not find matching requests against available seats. So find next closest tickets
+      // group
+      if (requestFitInAfterSplit == null) {
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.info(
+              "Unable to find matching request for available seats.. so trying to find closest group");
+        }
+        requestFitInAfterSplit =
+            CustomerRequestFinder.findEligibleCustomerRequests(
+                getRequestRequiresActionInArray(),
+                theaterLayout.getTotalAvailableSeats(),
+                false,
+                false);
+      } else {
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.info("Found groups to split " + getRequestsRequireAction());
+        }
+      }
+    }
+    if (requestFitInAfterSplit != null) {
+      requestFitInAfterSplit
+          .stream()
+          .forEach(
+              ticketsCount -> {
+                getRequestsRequireAction()
+                    .stream()
+                    .filter(mailInRequest -> mailInRequest.getTicketsCount() == ticketsCount)
+                    .findFirst()
+                    .ifPresent(
+                        mailInRequest -> {
+                          mailInRequest.setRequireSplit(true);
+                          mailInRequest.setActionTaken(true);
+                          mailInRequest.setRequestStatus("Call to split party.");
+                        });
+              });
+    }
+  }
+
+  // ~------------------------------------------------------------------------------------------------------------------
+
+  public void resetRequestsRequireSplit() {
+    getCallUsToSplitRequests()
+        .stream()
+        .forEach(
+            mailInRequest -> {
+              mailInRequest.setActionTaken(false);
+              mailInRequest.setRequestStatus(null);
+              mailInRequest.setRequireSplit(false);
             });
   }
 } // end class TicketRequestHandler

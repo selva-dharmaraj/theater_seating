@@ -22,14 +22,20 @@ public class CustomerRequestFinder {
   // ~Methods-----------------------------------------------------------------------------------------------------------
 
   public static void collectCombination(
-      int[] array, int pos, int sum, int[] acc, Set<List<Integer>> results) {
+      int[] array, int pos, int sum, int[] acc, Set<List<Integer>> results, boolean match) {
     if (Arrays.stream(acc).sum() > sum) {
+      if (!match) {
+        List<Integer> listRequests = Arrays.stream(acc).boxed().collect(Collectors.toList());
+          listRequests.remove(listRequests.size() - 1);
+        results.add(listRequests);
+      }
       return;
     }
 
     if (Arrays.stream(acc).sum() == sum) {
-      // System.out.println(Arrays.toString(acc));
-      results.add(Arrays.stream(acc).boxed().collect(Collectors.toList()));
+      if (match) {
+        results.add(Arrays.stream(acc).boxed().collect(Collectors.toList()));
+      }
 
       return;
     }
@@ -38,7 +44,7 @@ public class CustomerRequestFinder {
       int[] newAcc = new int[acc.length + 1];
       System.arraycopy(acc, 0, newAcc, 0, acc.length);
       newAcc[acc.length] = array[i];
-      collectCombination(array, i, sum, newAcc, results);
+      collectCombination(array, i, sum, newAcc, results, match);
     }
   }
   // ~------------------------------------------------------------------------------------------------------------------
@@ -53,14 +59,24 @@ public class CustomerRequestFinder {
    * @param sectionCount count of given section
    * @return Nothing.
    */
-  public static List<Integer> findEligibleCustomerRequests(int[] requests, int sectionCount) {
+  public static List<Integer> findEligibleCustomerRequests(
+      int[] requests, int sectionCount, boolean minRequests, boolean match) {
     Set<List<Integer>> combinationOfRequest = new HashSet<>();
 
-    collectCombination(requests, -1, sectionCount, new int[] {}, combinationOfRequest);
+    collectCombination(requests, -1, sectionCount, new int[] {}, combinationOfRequest, match);
 
-    Optional<List<Integer>> max =
-        combinationOfRequest.stream().min(Comparator.comparing(List::size));
-    List uniqueCombinationRequest = max.isPresent() ? max.get() : null;
+    Optional<List<Integer>> result = null;
+    if (minRequests) {
+      result = combinationOfRequest.stream().min(Comparator.comparing(List::size));
+    } else {
+      result =
+          combinationOfRequest
+              .stream()
+              .max(
+                  Comparator.comparing(
+                      integers -> integers.stream().mapToInt(Integer::intValue).sum()));
+    }
+    List uniqueCombinationRequest = result.isPresent() ? result.get() : null;
     LOGGER.info(
         String.format(
             "trying to fill section {%s} with available request(s) {%s} and found matched {%s}",
