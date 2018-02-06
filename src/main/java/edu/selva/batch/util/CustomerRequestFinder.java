@@ -77,7 +77,7 @@ public class CustomerRequestFinder {
                       integers -> integers.stream().mapToInt(Integer::intValue).sum()));
     }
     List uniqueCombinationRequest = result.isPresent() ? result.get() : null;
-    LOGGER.info(
+    LOGGER.debug(
         String.format(
             "trying to fill section {%s} with available request(s) {%s} and found matched {%s}",
             sectionCount, Arrays.toString(requests), uniqueCombinationRequest));

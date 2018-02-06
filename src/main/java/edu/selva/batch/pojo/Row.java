@@ -3,6 +3,7 @@ package edu.selva.batch.pojo;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -88,6 +89,9 @@ public class Row {
     return getSections().stream().mapToInt(section -> section.getAvailableSeatsCount()).sum();
   }
 
+  public List<Section> getSectionsWithAvailableSeats(){
+    return sections.stream().filter(section -> section.getAvailableSeatsCount()>0).collect(Collectors.toList());
+  }
   // ~------------------------------------------------------------------------------------------------------------------
 
   /**

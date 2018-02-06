@@ -37,9 +37,9 @@ public class BatchApplicationTests {
       filePrefix = "file:///";
     }
 
-    System.setProperty("layoutFile", filePrefix + new File("theater_layout.txt").getAbsolutePath());
+    System.setProperty("layoutFile", filePrefix + new File("theater_layout_1.txt").getAbsolutePath());
     System.setProperty(
-        "requestFile", filePrefix + new File("theater_seating_request.txt").getAbsolutePath());
+        "requestFile", filePrefix + new File("theater_seating_request_1.txt").getAbsolutePath());
   }
 
   // ~Methods-----------------------------------------------------------------------------------------------------------

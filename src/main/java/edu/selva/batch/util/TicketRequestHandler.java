@@ -3,7 +3,6 @@ package edu.selva.batch.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -90,10 +89,10 @@ public class TicketRequestHandler {
             + getTotalRequestedTickets()
             + " seat(s)");
     LOGGER.info(
-        "Can't handle seats: "
-            + getCanNotHandleRequests().size()
-            + " request(s) and "
-            + getCanNotHandleRequestTicketsCount()
+        "Total accepted seats: "
+            + getAcceptedRequests().size()
+            + " request(s) "
+            + getAcceptedRequestsCount()
             + " seat(s)");
     LOGGER.info(
         "Call to split seats: "
@@ -101,11 +100,12 @@ public class TicketRequestHandler {
             + " request(s) and "
             + getCallUsToSplitTicketsCount()
             + " seat(s)");
+    System.out.println();
     LOGGER.info(
-        "Total eligible seats: "
-            + getRequestsRequireAction().size()
-            + " request(s) "
-            + getRequestsCountRequiresAction()
+        "Can't handle seats: "
+            + getCanNotHandleRequests().size()
+            + " request(s) and "
+            + getCanNotHandleRequestTicketsCount()
             + " seat(s)");
   } // end method displayTicketRequestSummary
 
@@ -307,6 +307,12 @@ public class TicketRequestHandler {
         .collect(Collectors.toList());
   }
 
+  public List<MailInRequest> getAcceptedRequests() {
+    return mailInRequests
+        .stream()
+        .filter(mailInRequest -> mailInRequest.isAccepted())
+        .collect(Collectors.toList());
+  }
   // ~------------------------------------------------------------------------------------------------------------------
 
   /**
@@ -318,6 +324,14 @@ public class TicketRequestHandler {
     return mailInRequests
         .stream()
         .filter(mailInRequest -> !mailInRequest.isActionTaken())
+        .mapToInt(mailRequest -> mailRequest.getTicketsCount())
+        .sum();
+  }
+
+  public int getAcceptedRequestsCount() {
+    return mailInRequests
+        .stream()
+        .filter(mailInRequest -> mailInRequest.isAccepted())
         .mapToInt(mailRequest -> mailRequest.getTicketsCount())
         .sum();
   }
@@ -479,6 +493,8 @@ public class TicketRequestHandler {
                           mailInRequest.setRequireSplit(true);
                           mailInRequest.setActionTaken(true);
                           mailInRequest.setRequestStatus("Call to split party.");
+                          theaterLayout.updateSeatsAvailabilityForSplitRequests(
+                              mailInRequest.getTicketsCount());
                         });
               });
     }

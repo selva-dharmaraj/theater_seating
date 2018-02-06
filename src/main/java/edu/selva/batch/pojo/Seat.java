@@ -13,7 +13,8 @@ public class Seat {
   // ~Static-fields/initializers----------------------------------------------------------------------------------------
 
   public static final String EMPTY = "__";
-  public static final String FILLED = "X";
+  public static final String FILLED = "R";
+  public static final String SPLIT = "W";
 
   // ~Instance-fields---------------------------------------------------------------------------------------------------
 

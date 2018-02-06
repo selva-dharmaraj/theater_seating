@@ -61,6 +61,14 @@ public class Section {
     return returnList;
   }
 
+  public List<Seat> fillAllSplitSeats() {
+    List<Seat> returnList = null;
+    returnList = getAvailableSeats().stream().collect(Collectors.toList());
+    returnList.stream().forEach(e -> e.setSeatAvailable(Seat.SPLIT));
+
+    return returnList;
+  }
+
   // ~------------------------------------------------------------------------------------------------------------------
 
   /**
@@ -75,6 +83,17 @@ public class Section {
     if (fillCount < getAvailableSeatsCount()) {
       returnList = getAvailableSeats().stream().limit(fillCount).collect(Collectors.toList());
       returnList.stream().limit(fillCount).forEach(e -> e.setSeatAvailable(Seat.FILLED));
+    }
+
+    return returnList;
+  }
+
+  public List<Seat> fillSplitSeats(int fillCount) {
+    List<Seat> returnList = null;
+
+    if (fillCount < getAvailableSeatsCount()) {
+      returnList = getAvailableSeats().stream().limit(fillCount).collect(Collectors.toList());
+      returnList.stream().limit(fillCount).forEach(e -> e.setSeatAvailable(Seat.SPLIT));
     }
 
     return returnList;
